@@ -6,6 +6,7 @@ The purpose of this project is to write a distributed chat system consisting
 of one server and an arbitrary number of clients. 
 
 * Guidlines:
+
 			--> Chats are between two clients only
 
 			--> Server keeps track of clients who are online
