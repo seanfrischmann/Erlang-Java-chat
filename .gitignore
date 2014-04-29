@@ -18,3 +18,4 @@ deps
 *.beam
 *.plt
 erl_crash.dump
+/java_version/hw5/nbproject/private/
