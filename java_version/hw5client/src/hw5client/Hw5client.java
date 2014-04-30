@@ -31,7 +31,7 @@ public class Hw5client {
                     String input = chat.nextLine();
                     String HOST="";
                     String username="";
-                    if(input.substring(0,9).compareTo("goOnline(")==0){
+                    if(input.length()>9&&input.substring(0,9).compareTo("goOnline(")==0){
                         StringTokenizer tokens = new StringTokenizer(input.substring(9, input.length()),",");
                         if(tokens.countTokens()>1){
                             HOST=tokens.nextToken();
@@ -47,6 +47,7 @@ public class Hw5client {
                             PrintWriter out = new PrintWriter(s.getOutputStream());//GET THE CLIENTS OUTPUT STREAM (USED TO SEND DATA TO THE SERVER)
                             out.println(username);
                             out.flush();
+                            
                             String result=in.nextLine();
                             //System.out.println(result);
                             if(result.compareTo("notexist")==0){
