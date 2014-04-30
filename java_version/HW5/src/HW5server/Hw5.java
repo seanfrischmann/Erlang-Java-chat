@@ -54,7 +54,7 @@ public class Hw5 {
                                 else{
                                     out.println("exist");
                                     out.flush();
-                                    System.out.println("didnt exist");
+                                    System.out.println("user already exists");
                                 }
 			}
 		} 
