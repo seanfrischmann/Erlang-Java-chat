@@ -54,6 +54,10 @@ public class Client implements Runnable {
                                             //System.out.println("test");
                                             System.out.println("You logged off of " + HOST + " with username " +username);
                                             out.println(username.concat("1"));
+                                            out.flush();
+                                           
+                                            System.out.println(in.nextLine());
+                                            System.exit(0);
                                             }
                                         }
                                         else if(input.length()>15&&input.substring(0,16).compareTo("requestChatWith(")==0){
@@ -75,8 +79,8 @@ public class Client implements Runnable {
                                     }
                                     else{
                                         //System.out.println("test2");
-                                        out.println(input);
-                                    }//SEND IT TO THE SERVER
+                                        System.out.println("error");
+                                    }
                                     out.flush();//FLUSH THE STREAM
 
                                     if(in.hasNext())//IF THE SERVER SENT US SOMETHING

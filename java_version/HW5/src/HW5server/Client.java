@@ -58,6 +58,7 @@ public class Client implements Runnable{
                                         if(input.endsWith("1")){
                                             usernames.remove(removeHelper(usernames,input.substring(0,input.length()-1)));
                                             System.out.println("Client logout: " + input.substring(0,input.length()-1));
+                                            out.println("Logout successful");
                                         }
                                         else if(input.endsWith("2")){
                                             StringTokenizer tokens = new StringTokenizer(input.substring(15, input.length()-1),",");
