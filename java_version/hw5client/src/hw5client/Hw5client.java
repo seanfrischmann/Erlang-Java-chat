@@ -55,8 +55,9 @@ public class Hw5client {
                                 //IF CONNECTED THEN PRINT IT OUT
                                 loggedin=true;
                                 Client client = new Client(s);//START NEW CLIENT OBJECT
-
+                                
                                 Thread t = new Thread(client);//INITIATE NEW THREAD
+                                
                                 t.start();//START THREAD
                             }
                             else{

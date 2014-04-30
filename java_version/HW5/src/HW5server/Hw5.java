@@ -43,7 +43,7 @@ public class Hw5 {
                                     input=in.nextLine();
                                 }
                                 if(!usernames.contains(input)){
-                                    System.out.println("Client connected from " + s.getLocalAddress().getHostName()+" using name "+input);	//	TELL THEM THAT THE CLIENT CONNECTED
+                                    System.out.println("Client connected from " + s.getPort()+" using name "+input);	//	TELL THEM THAT THE CLIENT CONNECTED
                                     usernames.add(input);
                                     out.println("notexist");
                                     out.flush();

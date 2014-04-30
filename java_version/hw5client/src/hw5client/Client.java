@@ -13,6 +13,7 @@ package hw5client;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
+import java.util.StringTokenizer;
 
 public class Client implements Runnable {
 
@@ -43,10 +44,16 @@ public class Client implements Runnable {
                                     String input = chat.nextLine();
 
                                             //SET NEW VARIABLE input TO THE VALUE OF WHAT THE CLIENT TYPED IN
-                                    if(input.length()>7){
-                                        if(input.substring(0, 6).compareTo("login(")==0){
+                                    if(input.length()>10){
+                                        if(input.substring(0, 10).compareTo("goOffline(")==0){
+                                            StringTokenizer tokens = new StringTokenizer(input.substring(10, input.length()),",");
+                                            if(tokens.countTokens()>1){
+                                                String HOST=tokens.nextToken();
+                                                String username=tokens.nextToken();
+                                                username=username.substring(0, username.length()-1);
                                             //System.out.println("test");
-                                            out.println(input.substring(6, input.length()-1).concat("1"));
+                                            out.println(username.concat("1"));
+                                            }
                                         }
                                     }
                                     else{
