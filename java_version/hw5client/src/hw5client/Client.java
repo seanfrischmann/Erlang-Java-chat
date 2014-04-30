@@ -46,16 +46,31 @@ public class Client implements Runnable {
                                             //SET NEW VARIABLE input TO THE VALUE OF WHAT THE CLIENT TYPED IN
                                     if(input.length()>10){
                                         if(input.substring(0, 10).compareTo("goOffline(")==0){
-                                            StringTokenizer tokens = new StringTokenizer(input.substring(10, input.length()),",");
-                                            
+                                            StringTokenizer tokens = new StringTokenizer(input.substring(10, input.length()-1),",");
                                             if(tokens.countTokens()>1){
                                                 String HOST=tokens.nextToken();
                                                 String username=tokens.nextToken();
-                                                username=username.substring(0, username.length()-1);
+                                               // username=username.substring(0, username.length()-1);
                                             //System.out.println("test");
                                             System.out.println("You logged off of " + HOST + " with username " +username);
                                             out.println(username.concat("1"));
                                             }
+                                        }
+                                        else if(input.length()>15&&input.substring(0,16).compareTo("requestChatWith(")==0){
+                                            StringTokenizer tokens = new StringTokenizer(input.substring(15, input.length()-1),",");
+                                            if(tokens.countTokens()>1){
+                                                String HOST=tokens.nextToken();
+                                                String username=tokens.nextToken();
+                                                String targetusername=tokens.nextToken();
+                                                System.out.println("You sent a chat request to "+targetusername+" on "+HOST);
+                                                out.println(input.concat("2"));
+                                                //username=username.substring(0, username.length()-1);
+                                            }
+                                        }
+                                        else if(input.substring(0,11).compareTo("whosOnline(")==0){
+                                            out.println("whosOnline(");
+                                            out.flush();
+                                            System.out.println(in.nextLine());
                                         }
                                     }
                                     else{

@@ -61,7 +61,7 @@ public class Hw5client {
                                 t.start();//START THREAD
                             }
                             else{
-                                System.out.println("user already exists, please use different name");
+                                System.out.println("user already exists on server, please use different name");
                             }
                     } 
                     catch (Exception noServer)//IF DIDNT CONNECT PRINT THAT THEY DIDNT

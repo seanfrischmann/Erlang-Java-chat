@@ -15,6 +15,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.StringTokenizer;
 
 
 public class Client implements Runnable{
@@ -26,6 +27,13 @@ public class Client implements Runnable{
 		socket = s;//INSTANTIATE THE SOCKET
                 usernames=usernamesList;
 	}
+        public static String whosonline(ArrayList<ArrayList<String> > input){
+            String result="";
+            for(int i =0; i<input.size(); i++){
+                result=result.concat(input.get(i).get(0).concat(" "));
+            }
+            return result;
+        }
 	public static int removeHelper(ArrayList<ArrayList<String> > input, String username){
             int i=0;
             while(input.get(i).get(0).compareTo(username)!=0){
@@ -52,8 +60,17 @@ public class Client implements Runnable{
                                             System.out.println("Client logout: " + input.substring(0,input.length()-1));
                                         }
                                         else if(input.endsWith("2")){
-                                            
+                                            StringTokenizer tokens = new StringTokenizer(input.substring(15, input.length()-1),",");
+                                            if(tokens.countTokens()>2){
+                                                String HOST=tokens.nextToken();
+                                                String username=tokens.nextToken();
+                                                String targetusername=tokens.nextToken();
+                                                
+                                            }
                                             System.out.println("Client logged in as: " + input.substring(0,input.length()-1));
+                                        }
+                                        else if(input.compareTo("whosOnline(")==0){
+                                            out.println(whosonline(usernames));
                                         }
                                         else{
                                              System.out.println("Client Said: " + input.substring(0,input.length()));
