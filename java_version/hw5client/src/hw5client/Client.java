@@ -47,11 +47,13 @@ public class Client implements Runnable {
                                     if(input.length()>10){
                                         if(input.substring(0, 10).compareTo("goOffline(")==0){
                                             StringTokenizer tokens = new StringTokenizer(input.substring(10, input.length()),",");
+                                            
                                             if(tokens.countTokens()>1){
                                                 String HOST=tokens.nextToken();
                                                 String username=tokens.nextToken();
                                                 username=username.substring(0, username.length()-1);
                                             //System.out.println("test");
+                                            System.out.println("You logged off of " + HOST + " with username " +username);
                                             out.println(username.concat("1"));
                                             }
                                         }

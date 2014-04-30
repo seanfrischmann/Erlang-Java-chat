@@ -24,9 +24,17 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Hw5 {
-
+        public static Boolean searchlist(ArrayList<ArrayList<String> > input, String search, int j ){
+            Boolean result=true;
+            for(int i=0; i<input.size(); i++){
+                if(input.get(i).get(j).compareTo(search)==0){
+                    result=false;
+                }
+            }
+            return result;
+        }
 	public static void main(String[] args) throws IOException {
-		ArrayList<String> usernames=new ArrayList<String>();
+		ArrayList<ArrayList<String> > usernames=new ArrayList<ArrayList<String> >();
                 try 
 		{
 			final int PORT = 50054;//SET NEW CONSTANT VARIABLE: PORT
@@ -42,9 +50,13 @@ public class Hw5 {
                                 if(in.hasNext()){
                                     input=in.nextLine();
                                 }
-                                if(!usernames.contains(input)){
-                                    System.out.println("Client connected from " + s.getPort()+" using name "+input);	//	TELL THEM THAT THE CLIENT CONNECTED
-                                    usernames.add(input);
+                                if(searchlist(usernames,input,0)){
+                                    System.out.println("Client connected from " + s.getPort()+" on server "+s.getLocalAddress().getHostName()+ " using name "+input);	//	TELL THEM THAT THE CLIENT CONNECTED
+                                    ArrayList<String> temp = new ArrayList<String>();
+                                    temp.add(input);
+                                    temp.add(Integer.toString(s.getPort()));
+                                    temp.add(s.getLocalAddress().getHostName());
+                                    usernames.add(temp);
                                     out.println("notexist");
                                     out.flush();
                                     Client chat = new Client(s,usernames);//CREATE A NEW CLIENT OBJECT

@@ -20,13 +20,19 @@ import java.util.Scanner;
 public class Client implements Runnable{
 
 	private Socket socket;//SOCKET INSTANCE VARIABLE
-	private ArrayList<String> usernames;
-	public Client(Socket s,ArrayList<String> usernamesList)
+	private ArrayList<ArrayList<String> > usernames;
+	public Client(Socket s,ArrayList<ArrayList<String> > usernamesList)
 	{
 		socket = s;//INSTANTIATE THE SOCKET
                 usernames=usernamesList;
 	}
-	
+	public static int removeHelper(ArrayList<ArrayList<String> > input, String username){
+            int i=0;
+            while(input.get(i).get(0).compareTo(username)!=0){
+                i++;
+            }
+            return i;
+        }
 	@Override
 	public void run() //(IMPLEMENTED FROM THE RUNNABLE INTERFACE)
 	{
@@ -42,7 +48,7 @@ public class Client implements Runnable{
 				{
 					String input = in.nextLine();//IF THERE IS INPUT THEN MAKE A NEW VARIABLE input AND READ WHAT THEY TYPED
                                         if(input.endsWith("1")){
-                                            usernames.remove(input.substring(0, input.length()-1));
+                                            usernames.remove(removeHelper(usernames,input.substring(0,input.length()-1)));
                                             System.out.println("Client logout: " + input.substring(0,input.length()-1));
                                         }
                                         else if(input.endsWith("2")){
@@ -51,8 +57,9 @@ public class Client implements Runnable{
                                         }
                                         else{
                                              System.out.println("Client Said: " + input.substring(0,input.length()));
+                                             out.println("You Said: " + input.substring(0,input.length()));//RESEND IT TO THE CLIENT
                                         }//PRINT IT OUT TO THE SCREEN
-					out.println("You Said: " + input.substring(0,input.length()));//RESEND IT TO THE CLIENT
+					
 					out.flush();//FLUSH THE STREAM
 				}
 			}
