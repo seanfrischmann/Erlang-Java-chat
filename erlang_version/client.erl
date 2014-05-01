@@ -1,16 +1,17 @@
 %%%-----------------------------------------------------------------------
-%%% Practice Client Code
-%%% Title: Programming Erlang: Software for a Concurrent World
-%%% Author: Joe Armstrong
-%%% Page: 140
+%%% Homework 5
+%%% Client Code
+%%% Cse 305
+%%% Author: Sean Frischmann
 %%%-----------------------------------------------------------------------
 
--module(practice_client).
+-module(client).
 -export([start/0, loop/1]).
 
 start() ->
-		Server = practice_server:start(),
-		spawn(practice_client, loop, [Server]).
+		Name = io:get_line("Enter a username: ")
+		Server = server:serverSocket(), % We want to connect an already running server
+		spawn(client, loop, [Server]). % This creates the process client socket
 
 loop(Server) ->
 		receive
