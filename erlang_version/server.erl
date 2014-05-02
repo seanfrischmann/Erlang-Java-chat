@@ -5,8 +5,8 @@
 %%% Author: Sean Frischmann
 %%%-----------------------------------------------------------------------
 
--module(server)
--export([start/0])
+-module(server).
+-export([start/0, loop/1]).
 
 start() ->
 	List = [],
@@ -29,19 +29,12 @@ loop(List) ->
 						From ! false,
 						loop(List);
 					false ->
+						clientManager({Name,From},List,connect),
 						From ! true,
 						loop(List)
 				end;
-			{From, {rectangle, Width, Height}} ->
-				io:format("Server: received a rectangle message!~n"),
-				From ! {self(), Width * Height },
-				loop();
-			{From, {circle, Radius}} ->
-				io:format("Server: received a circle message!~n"),
-				From ! {self(), 3.14159 * Radius * Radius},
-				loop();
 			{From, Other} ->
 				io:format("Server: received an unknown message!~n"),
 				From ! {self(), {error, Other}},
-				loop()
+				loop(List)
 		end.
