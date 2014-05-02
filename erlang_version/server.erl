@@ -10,9 +10,7 @@
 
 start() ->
 	List = [],
-	spawn(server,loop,[List]).
-
-serverSocket() -> self().
+	register(frischkro,spawn(server,loop,[List])).
 
 clientManager(Name,List,Action) ->
 	case Action of
@@ -28,11 +26,10 @@ loop(List) ->
 			{From, {connect, Name}} ->
 				case lists:keymember({Name,From},List) of
 					true ->
-						From ! {self(),false},
+						From ! false,
 						loop(List);
 					false ->
-						List = clientManager({Name,From},List,connect),
-						From ! {self(),true},
+						From ! true,
 						loop(List)
 				end;
 			{From, {rectangle, Width, Height}} ->

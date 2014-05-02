@@ -1,15 +1,6 @@
 -module(t).
 -export([con/2]).
 
-co(X,Y) ->
-	case {X,Y} of
-		{3,4} ->
-			io:format("Hooray~n"),
-			7;
-		{_,_} ->
-			io:format("oops~n")
-	end.
-
 con(X,Y) ->
 	case lists:member(X,Y) of
 		true ->
