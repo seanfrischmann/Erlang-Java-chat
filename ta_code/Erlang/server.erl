@@ -4,6 +4,7 @@
 start() -> spawn(fun loop/0).
 
 loop() ->
+		io:format("server running"),
        receive
 		{From, Message} ->
         	io:format("Server: received a message!~p~n",[Message]),
