@@ -8,9 +8,6 @@
 -module(client).
 -export([start/1, loop/3]).
 
-start(Server) ->
-		spawn(client,loop,[Server, 0, false]).
-
 loop(Server,Name,Registered) ->
 		case Registered of
 			false ->
@@ -25,3 +22,6 @@ loop(Server,Name,Registered) ->
 				io:format("Unfortunately, that name is taken"),
 				loop(Server, 0, false)
 		end.
+
+start(Server) ->
+		spawn(client,loop,[Server, 0, false]).
