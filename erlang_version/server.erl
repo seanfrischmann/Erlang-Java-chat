@@ -21,15 +21,23 @@ clientManager(Name,List,Action) ->
 	end.
 
 loop(List) ->
+		case List == [] of
+			true ->
+					io:format("list creation success");
+			false ->
+					io:format("list creation failed")
+		end,
 		io:format("Server: waiting for a message...~n"),
 		receive
 			{From, {connect, Name}} ->
-				case lists:keymember({Name,From},List) of
+				case List /= [] of
 					true ->
+						case lists:keymember({Name,From},List) of
+							true ->
 						From ! false,
 						loop(List);
 					false ->
-						clientManager({Name,From},List,connect),
+						List = clientManager({Name,From},List,connect),
 						From ! true,
 						loop(List)
 				end;

@@ -12,6 +12,5 @@ con(X,Y) ->
 					io:format("Sorry already member")
 			end;
 		false ->
-			lists:append([X],Y),
-			t:con(sean,Y)
+			lists:append([X],Y)
 	end.
