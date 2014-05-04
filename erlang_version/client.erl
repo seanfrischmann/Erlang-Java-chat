@@ -9,9 +9,9 @@
 -export([start/1, loop/3]).
 
 start(Server) ->
-		spawn(client, loop, [Server, 0, false]).
+		spawn(client,loop,[Server, 0, false]).
 
-loop(Server, Name, Registered) ->
+loop(Server,Name,Registered) ->
 		case Registered of
 			false ->
 				User_Name = io:get_line("Enter a username: "),
