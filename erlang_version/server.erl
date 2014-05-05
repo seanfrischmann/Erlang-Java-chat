@@ -28,7 +28,7 @@ loop(List) ->
 			{From, {connect, Name}} ->
 				case List /= [] of
 					true ->
-						case lists:keymember({Name,pid_to_list(From)},List) of
+						case lists:keymember({Name,pid_to_list(From)},1,List) of
 							true ->
 								From ! {connect,false},
 								loop(List);
