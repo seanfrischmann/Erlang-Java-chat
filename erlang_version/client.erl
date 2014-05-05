@@ -8,20 +8,20 @@
 -module(client).
 -export([start/1, loop/3]).
 
+start(Server) ->
+		spawn(client,loop,[Server, 0, false]).
+
 loop(Server,Name,Registered) ->
 		case Registered of
 			false ->
-				User_Name = io:get_line("Enter a username: "),
+				User_Name = string:strip(io:get_line("Enter a username: "),both,$\n),
 				{frischkro,Server} ! {self(), {connect, User_Name}}
 		end,
 		receive
 			true ->
-				io:format("You are now connected"),
+				io:format("You are now connected~n"),
 				loop(Server, User_Name, true);
 			false ->
-				io:format("Unfortunately, that name is taken"),
+				io:format("Unfortunately, that name is taken~n"),
 				loop(Server, 0, false)
 		end.
-
-start(Server) ->
-		spawn(client,loop,[Server, 0, false]).
