@@ -9,7 +9,8 @@
 -export([start/1, loop/3]).
 
 start(Server) ->
-		spawn(client,loop,[Server, 0, false]).
+		%%spawn(client,loop,[Server, 0, false]),
+		loop(Server,0,false).
 
 loop(Server,Name,Registered) ->
 		case Registered of
