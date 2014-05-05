@@ -15,8 +15,10 @@ start() ->
 clientManager(Name,List,Action) ->
 	case Action of
 		connect ->
+			io:format("~p was connected~n", [Name]),
 			lists:append([Name],List);
 		disconnect ->
+			io:format("~p was disconnected~n", [Name]),
 			lists:delete(Name,List)
 	end.
 
@@ -28,17 +30,20 @@ loop(List) ->
 					true ->
 						case lists:keymember({Name,pid_to_list(From)},List) of
 							true ->
-								From ! false,
+								From ! {connect,false},
 								loop(List);
 							false ->
-								From ! true,
+								From ! {connect,true},
 								loop(clientManager({Name,pid_to_list(From)},List,connect))
 						end;
 					false ->
 						List_temp = clientManager({Name,pid_to_list(From)},List,connect),
-						From ! true,
+						From ! {connect,true},
 						loop(List_temp)
 				end;
+			{From, {disconnect, Name}} ->
+				List_temp = clientManager({Name,pid_to_list(From)},List,disconnect),
+				loop(List_temp)
 			{From, Other} ->
 				io:format("Server: received an unknown message!~n"),
 				From ! {self(), {error, Other}},
