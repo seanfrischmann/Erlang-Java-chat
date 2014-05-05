@@ -28,7 +28,7 @@ loop(Server,Name,Registered) ->
 				Command = string:strip(io:get_line("Enter a command: "),both,$\n),
 				case Command of
 					"quit" ->
-						{frischkro,Server} ! {self(), {disconnect, User_Name}},
+						{frischkro,Server} ! {self(), {disconnect, Name}},
 						exit(normal);
 					_ ->
 						io:format("Did not understand command, please try again~n"),

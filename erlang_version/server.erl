@@ -43,7 +43,7 @@ loop(List) ->
 				end;
 			{From, {disconnect, Name}} ->
 				List_temp = clientManager({Name,pid_to_list(From)},List,disconnect),
-				loop(List_temp)
+				loop(List_temp);
 			{From, Other} ->
 				io:format("Server: received an unknown message!~n"),
 				From ! {self(), {error, Other}},
