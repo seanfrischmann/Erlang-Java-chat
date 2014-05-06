@@ -6,20 +6,24 @@
 %%%-----------------------------------------------------------------------
 
 -module(client_temp).
--export([start/1, loop/0, goOnline/2]).
+-export([start/1, loop/1, goOnline/2]).
 
 
 start(Server) ->
-	spawn(client,loop,[Server,0,false,false,0]).
+	spawn(client_temp,loop,[Server]).
 
-loop() ->
+loop(Server) ->
+	io:format("waiting for message...~n"),
 	receive
 		{connect,true} ->
-			io:format("You are now connected~n");
+			io:format("You are now connected~n"),
+			loop(Server);
 		{connect,false} ->
-			io:format("Unfortunately, that name is taken~n");
+			io:format("Unfortunately, that name is taken~n"),
+			loop(Server);
 		{connect,already,UserName} ->
-			io:format("You are already connected as ~p~n", [UserName])
+			io:format("You are already connected as ~p~n", [UserName]),
+			loop(Server)
 	end.
 
 goOnline(Server,Name) ->

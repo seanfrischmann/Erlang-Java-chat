@@ -43,28 +43,29 @@ loop(List) ->
 						From ! {chat,rejected},
 						loop(List)
 				end;
-			{From, {connect, Name}} ->		% This is used to check for username %
+			{From, {connect, Name}} ->% This is used to check for username %
 				case List /= [] of
 					true ->
 						case lists:keymember(pid_to_list(From),2,List) of
 							false ->
 								case lists:keymember(Name,1,List) of
 									true ->
-										From ! {connect,false},
+										From ! {self(), {connect,false}},
 										loop(List);
 									false ->
 										From ! {connect,true},
+										From ! {self(), {connect,false}},
 										loop(clientManager({Name,pid_to_list(From)},List,connect))
 								end;
 							true ->
 								Temp = lists:keyfind(pid_to_list(From),2,List),
 								{UserName,_} = Temp,
-								From ! {connect,already,UserName}
-								loop(List);
+								From ! {self(), {connect,already,UserName}},
+								loop(List)
 						end;
 					false ->
 						List_temp = clientManager({Name,pid_to_list(From)},List,connect),
-						From ! {connect,true},
+						From ! {self(), {connect,true}},
 						loop(List_temp)
 				end;
 			{From, {disconnect, Name}} ->
