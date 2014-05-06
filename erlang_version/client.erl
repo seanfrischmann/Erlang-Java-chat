@@ -22,21 +22,23 @@ loop(Server,Name,Registered,Chat_Connected,Friend) ->
 						loop(Server,Name,Registered,true,Friend);
 					"quit chat" ->
 						Friend ! quit_chat,
+						io:format("Exiting chat...~n"),
 						loop(Server,Name,Registered,false,0);
 					"check messages" ->
 						false;
 					_ ->
-						io:format("unknown chat command"),
+						io:format("unknown chat command~n"),
 						loop(Server,Name,Registered,true,Friend)
 				end,
 				receive
 					quit_chat ->
+						io:format("Chat has been disconnected...~n"),
 						loop(Server,Name,Registered,false,0);
 					{message,Msg} ->
 						io:format("~p~n",[Msg]),
 						loop(Server,Name,Registered,Chat_Connected,Friend);
 					_ ->
-						io:format("no messages"),
+						io:format("You have no messages~n"),
 						loop(Server,Name,Registered,Chat_Connected,Friend)
 				end;
 			true ->

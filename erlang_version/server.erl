@@ -40,7 +40,7 @@ loop(List) ->
 						list_to_pid(Friend) ! {accept,From,Name},
 						loop(List);
 					false ->
-						From ! {chat,reject},
+						From ! {chat,rejected},
 						loop(List)
 				end;
 			{From, {connect, Name}} ->
