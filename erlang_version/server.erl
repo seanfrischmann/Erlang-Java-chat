@@ -28,8 +28,8 @@ loop(List) ->
 			{From, {accepted, true, Friend_Request}} ->
 				Friend_Request ! {chat,accepted,From},
 				loop(List);
-			{accepted, false, Friend_Request} ->
-				Friend_Request ! {chat,rejected},
+			{accepted, false, Friend_temp} ->
+				Friend_temp ! {chat,rejected},
 				loop(List);
 			{From, {request, Name, Friend_Request}} ->
 				case lists:keymember(Friend_Request,1,List) of
@@ -37,7 +37,7 @@ loop(List) ->
 						io:format("sending chat request"),
 						Temp = lists:keyfind(Friend_Request,1,List),
 						{_,Friend} = Temp,
-						Friend ! {accept,From,Name},
+						list_to_pid(Friend) ! {accept,From,Name},
 						loop(List);
 					false ->
 						From ! {chat,reject},

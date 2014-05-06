@@ -18,21 +18,25 @@ loop(Server,Name,Registered,Chat_Connected,Friend) ->
 				case Chat_cmd of
 					"send message" ->
 						Chat_msg = string:strip(io:get_line("Enter a message: "),both,$\n),
-						Friend ! {message,Chat_msg};
+						Friend ! {message,Chat_msg},
+						loop(Server,Name,Registered,true,Friend);
 					"quit chat" ->
 						Friend ! quit_chat,
 						loop(Server,Name,Registered,false,0);
 					"check messages" ->
-						false
+						false;
+					_ ->
+						io:format("unknown chat command"),
+						loop(Server,Name,Registered,true,Friend)
 				end,
 				receive
 					quit_chat ->
 						loop(Server,Name,Registered,false,0);
 					{message,Msg} ->
-						io:format(Msg),
+						io:format("~p~n",[Msg]),
 						loop(Server,Name,Registered,Chat_Connected,Friend);
 					_ ->
-						io:format("no messages")
+						io:format("no messages"),
 						loop(Server,Name,Registered,Chat_Connected,Friend)
 				end;
 			true ->
@@ -70,15 +74,15 @@ loop(Server,Name,Registered,Chat_Connected,Friend) ->
 						io:format("~p would like to chat ",[FriendName]),
 						Friend_accept = string:strip(io:get_line("[yes/no]"),both,$\n),
 						case Friend_accept of
-							yes ->
+							"yes" ->
 								{frischkro,Server} ! {self(), {accepted, true, Friend_temp}},
 								loop(Server,Name,Registered,true,Friend_temp);
-							no ->
+							"no" ->
 								{frischkro,Server} ! {accepted, false, Friend_temp},
 								loop(Server,Name,Registered,false,Friend);
 							_ ->
 								io:format("unknown command, chat denied~n"),
-								{frischkro,Server} ! {accept, false, Friend_temp},
+								{frischkro,Server} ! {accepted, false, Friend_temp},
 								loop(Server,Name,Registered,false,Friend)
 						end;
 					{chat,accepted,Friend_temp} ->
@@ -86,7 +90,8 @@ loop(Server,Name,Registered,Chat_Connected,Friend) ->
 						loop(Server,Name,Registered,true,Friend_temp);
 					{chat,rejected} ->
 						io:format("Sorry that user is not online or unavailable~n"),
-						loop(Server,Name,Registered,false,Friend);
+						loop(Server,Name,Registered,false,Friend)
+				end;
 			_ ->
 				io:format("Unexpected error, program exiting"),
 				exit(normal)
