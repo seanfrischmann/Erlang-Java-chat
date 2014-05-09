@@ -10,6 +10,8 @@ package hw5client;
  *
  * @author Jason
  */
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -35,8 +37,8 @@ public class Client implements Runnable {
 		Boolean loggedin=false;
                 try
 		{
-			Scanner chat = new Scanner(System.in);//GET THE INPUT FROM THE CMD
-			Scanner in = new Scanner(socket.getInputStream());//GET THE CLIENTS INPUT STREAM (USED TO READ DATA SENT FROM THE SERVER)
+			BufferedReader chat = new BufferedReader(new InputStreamReader(System.in));//GET THE INPUT FROM THE CMD
+			BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));//GET THE CLIENTS INPUT STREAM (USED TO READ DATA SENT FROM THE SERVER)
 			PrintWriter out = new PrintWriter(socket.getOutputStream());//GET THE CLIENTS OUTPUT STREAM (USED TO SEND DATA TO THE SERVE
                         Socket clientSocket;
                       
@@ -52,8 +54,56 @@ public class Client implements Runnable {
                         */
 			while(true)//WHILE THE PROGRAM IS RUNNING
 			{	
-                      
-                                            String input = chat.nextLine();
+                                            try{
+                                                        server.setSoTimeout(100); 
+                                                        clientSocket=server.accept();
+                                                        BufferedReader socketin=new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                                                        PrintWriter socketout=new PrintWriter(clientSocket.getOutputStream());
+
+                                                        System.out.println(socketin.readLine());
+                                                        socketout.println(chat.readLine());  //sends back response
+                                                        socketout.flush();
+                                                        clientSocket=server.accept();
+                                                        BufferedReader chatin=new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                                                        PrintWriter chatout=new PrintWriter(clientSocket.getOutputStream());
+                                                        Boolean chatting=true;
+                                                        System.out.println("Begin Chatting...");
+                                                        String username=chatin.readLine();
+                                                        String message=new String();
+                                                        while(chatting){
+                                                                if(chatin.ready()){
+                                                                    message=chatin.readLine();
+                                                                    if(message.compareTo("quit()")==0){
+                                                                        System.out.println("chat has been ended");
+                                                                        break;
+                                                                    }
+                                                                    else{
+                                                                        System.out.println(message);
+                                                                    }
+                                                                    
+                                                                }
+                                                                if(chat.ready()){
+                                                                    message=chat.readLine();
+                                                                    if(message.compareTo("quit()")==0){
+                                                                        chatout.println("quit()");
+                                                                        chatout.flush();
+                                                                        System.out.println("chat has been ended");
+                                                                        break;
+                                                                    }
+                                                                    else{
+                                                                        chatout.println(username+" said: "+message);
+                                                                        chatout.flush();
+                                                                    }
+                                                                }
+                                                                 
+                                                        }
+                                                        
+                                                 } catch (SocketTimeoutException ste){
+                                                        //System.out.println("you have no chat requests");
+
+                                                 }
+                                        if(chat.ready()){    
+                                            String input = chat.readLine();
 
 
                                                 //SET NEW VARIABLE input TO THE VALUE OF WHAT THE CLIENT TYPED IN
@@ -69,7 +119,7 @@ public class Client implements Runnable {
                                                 out.println(username.concat("1"));
                                                 out.flush();
 
-                                                System.out.println(in.nextLine());
+                                                System.out.println(in.readLine());
                                                 System.exit(0);
                                                 }
                                             }
@@ -83,70 +133,75 @@ public class Client implements Runnable {
                                                     System.out.flush();
                                                     out.println(input.concat("2"));
                                                     out.flush();
-                                                    System.out.println(in.nextLine()); //retrieves response
-                                                    if(in.nextLine().compareTo("yes")==0){
-                                                        String host=in.nextLine();
-                                                        String port=in.nextLine();
-                                                        Socket temp=new Socket(host,Integer.valueOf(port));
-                                                        Scanner chatin=new Scanner(temp.getInputStream());
-                                                        PrintWriter chatout=new PrintWriter(temp.getOutputStream());
-                                                        boolean chatting=true;
-                                                        while(chatting){
-                                                            //if(chatin.hasNext()){
-                                                                System.out.println(chatin.nextLine());
-                                                            //}
-                                                            //if(chat.hasNext()){
-                                                                chatout.println(chat.nextLine());
-                                                                chatout.flush();
-                                                            //}
-                                                                 
+                                                    String result=in.readLine();
+                                                    //retrieves response
+                                                    if(result.compareTo("userisclear")==0){
+                                                        System.out.println(in.readLine());
+                                                        String response=in.readLine();
+                                                        if(response.compareTo("yes")==0){
+                                                            System.out.println("Begin chatting...");
+                                                            String host=in.readLine();
+                                                            String port=in.readLine();
+                                                            Socket temp=new Socket(host,Integer.valueOf(port));
+                                                            BufferedReader chatin=new BufferedReader(new InputStreamReader(temp.getInputStream()));
+                                                            PrintWriter chatout=new PrintWriter(temp.getOutputStream());
+                                                            boolean chatting=true;
+                                                            chatout.println(targetusername);
+                                                            chatout.flush();
+                                                            String message=new String();
+                                                            while(chatting){
+                                                                if(chatin.ready()){
+                                                                    message=chatin.readLine();
+                                                                    if(message.compareTo("quit()")==0){
+                                                                        System.out.println(targetusername+" quit, chat ended");
+                                                                        out.println("quit()");
+                                                                        out.flush();
+                                                                        break;
+                                                                    }
+                                                                    else{
+                                                                        System.out.println(message);
+                                                                    }
+                                                                    
+                                                                }
+                                                                if(chat.ready()){
+                                                                    message=chat.readLine();
+                                                                    if(message.compareTo("quit()")==0){
+                                                                        chatout.println("quit()");
+                                                                        chatout.flush();
+                                                                        System.out.println("chat with " + targetusername+" ended");
+                                                                        out.println("quit()");
+                                                                        out.flush();
+                                                                        break;
+                                                                    }
+                                                                    else{
+                                                                        chatout.println(username+" said: "+message);
+                                                                        chatout.flush();
+                                                                    }
+                                                                }
+
+                                                            }
+
                                                         }
-                                                        
+                                                        else{
+                                                            
+                                                        }
+                                                    }
+                                                    else if(result.compareTo("userisbusy")==0){
+                                                        System.out.println(targetusername+" is already in chat");
+                                                    }
+                                                    else{
+                                                        System.out.println(targetusername+" is offline");
                                                     }
 
                                                     //username=username.substring(0, username.length());
                                                 }
                                             }
-                                            else if(input.compareTo("check()")==0){
-                                                try{
-                                                    server.setSoTimeout(100); 
-                                                    clientSocket=server.accept();
-                                                    Scanner socketin=new Scanner(clientSocket.getInputStream());
-                                                    PrintWriter socketout=new PrintWriter(clientSocket.getOutputStream());
-                                                    if(socketin.hasNext()){
-                                                        System.out.println(socketin.nextLine());
-                                                        socketout.println(chat.nextLine());  //sends back response
-                                                        socketout.flush();
-                                                        clientSocket=server.accept();
-                                                        Scanner chatin=new Scanner(clientSocket.getInputStream());
-                                                        PrintWriter chatout=new PrintWriter(clientSocket.getOutputStream());
-                                                        Boolean chatting=true;
-                                                        while(chatting){
-                                                            //if(chatin.hasNext()){
-                                                            //    System.out.println(chatin.nextLine());
-                                                            //}
-                                                            //if(chat.hasNext()){
-                                                                chatout.println(chat.nextLine());
-                                                                chatout.flush();
-                                                            //}
-                                                                 
-                                                        }
-                                                        
-                                                        
-                                                    }
-                                                    else{
-                                                        System.out.println("you have no chat requests");
-                                                    }
-                                                 } catch (SocketTimeoutException ste){
-                                                        System.out.println("you have no chat requests");
-
-                                                 }
-                                            }
+                                            
                                             
                                             else if(input.length()>10&&input.substring(0,11).compareTo("whosOnline(")==0){
                                                 out.println("whosOnline(");
                                                 out.flush();
-                                                System.out.println(in.nextLine());
+                                                System.out.println(in.readLine());
                                             }
 
 
@@ -155,7 +210,7 @@ public class Client implements Runnable {
                                                 System.out.println("error");
                                                 out.flush();
                                             }
-
+                                        }    
                                      
                         }
                 }

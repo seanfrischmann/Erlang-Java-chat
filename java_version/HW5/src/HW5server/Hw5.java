@@ -35,6 +35,7 @@ public class Hw5 {
         }
 	public static void main(String[] args) throws IOException {
 		ArrayList<ArrayList<String> > usernames=new ArrayList<ArrayList<String> >();
+                ArrayList<String> isUserChatting= new ArrayList<String>();
                 try 
 		{
 			int PORT = 50054;//SET NEW CONSTANT VARIABLE: PORT
@@ -53,13 +54,14 @@ public class Hw5 {
                                 if(searchlist(usernames,input,0)){
                                     System.out.println("Client connected from " + s.getPort()+" on server "+s.getLocalAddress().getHostName()+ " using name "+input);	//	TELL THEM THAT THE CLIENT CONNECTED
                                     ArrayList<String> temp = new ArrayList<String>();
+                                    PORT=PORT+128;
                                     temp.add(input);
                                     temp.add(Integer.toString(PORT));
                                     temp.add(s.getLocalAddress().getHostName());
                                     usernames.add(temp);
                                     out.println("notexist");
                                     out.flush();
-                                    PORT=PORT+128;
+                                    //PORT=PORT+128;
                                     if(in.nextLine().compareTo("send")==0){
                                         out.println(Integer.toString(PORT));
                                         out.flush();
@@ -69,7 +71,7 @@ public class Hw5 {
                                         out.flush();
                                     }
                                     
-                                    Client chat = new Client(s,usernames);//CREATE A NEW CLIENT OBJECT
+                                    Client chat = new Client(s,usernames,isUserChatting);//CREATE A NEW CLIENT OBJECT
                                     Thread t = new Thread(chat);//MAKE A NEW THREAD
                                     t.start();//START THE THREAD
                                 }
