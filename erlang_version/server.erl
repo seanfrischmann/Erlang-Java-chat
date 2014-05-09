@@ -25,7 +25,7 @@ clientManager(Name,List,Action) ->
 loop(List) ->
 		io:format("Server: waiting for a message...~n"),
 		receive
-			{From, {accepted, true, Friend_Request}} ->
+			{From, {accepted, true, Friend_Request, Name}} ->
 				io:format("Server: Chat was acccepted~n"),
 				Friend_Request ! {chat,accepted,From,Name},
 				loop(List);

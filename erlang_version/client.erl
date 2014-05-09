@@ -6,7 +6,7 @@
 %%%-----------------------------------------------------------------------
 
 -module(client).
--export([start/2, loop/4, goOnline/3, goOffline/2, requestChat/3, exitChat/1, sendMessage/2]).
+-export([start/2, loop/4, goOnline/2, goOffline/2, requestChat/3, exitChat/1, sendMessage/2]).
 
 
 start(Server,Process_Name) ->
@@ -19,7 +19,7 @@ loop(Server,In_Chat,Friend_Name,Is_Registered) ->
 			io:format("Receiving chat message......~n"),
 			io:format("~p~n",[Message]),
 			loop(Server,In_Chat,Friend_Name,Is_Registered);
-		{send_message,Message}
+		{send_message,Message} ->
 			if
 				In_Chat ->
 					Friend_Name ! {receive_message,Message},
@@ -51,7 +51,7 @@ loop(Server,In_Chat,Friend_Name,Is_Registered) ->
 					Friend_accept = "already in chat";
 				true ->
 					io:format("~p would like to chat ",[Name]),
-					Friend_accept = string:strip(io:get_line("[yes/no]"),both,$\n),
+					Friend_accept = string:strip(io:get_line("[yes/no]"),both,$\n)
 			end,
 			case Friend_accept of
 				"yes" ->
@@ -62,7 +62,7 @@ loop(Server,In_Chat,Friend_Name,Is_Registered) ->
 					loop(Server,In_Chat,Friend_Name,Is_Registered);
 				"already in chat" ->
 					{frischkro,Server} ! {accepted, already, From},
-					loop(Server,In_Chat,Friend_Name,Is_Registered)
+					loop(Server,In_Chat,Friend_Name,Is_Registered);
 				_ ->
 					io:format("unknown command, chat denied~n"),
 					{frischkro,Server} ! {accepted, false, From, Name},
