@@ -88,12 +88,12 @@ public class Client implements Runnable{
                                                 String HOST=tokens.nextToken();
                                                 String username=tokens.nextToken();
                                                 String targetusername=tokens.nextToken();
-                                                System.out.println("1"+isUserOnline(usernames,targetusername));
-                                                System.out.println(usersInChat);
+                                                //System.out.println("1"+isUserOnline(usernames,targetusername));
+                                                //System.out.println(usersInChat);
                                                 //System.out.println("3"+isUserChatting(usersInChat,username));
-                                                System.out.println("4"+isUserChatting(usersInChat,targetusername));
+                                                //System.out.println("4"+isUserChatting(usersInChat,targetusername));
                                                 if(isUserOnline(usernames,targetusername)&&usersInChat.contains(targetusername)==false){
-                                                    System.out.println(usernames.get(indexOfName(usernames,targetusername)).get(2) + "  " + usernames.get(indexOfName(usernames,targetusername)).get(1));
+                                                    //System.out.println(usernames.get(indexOfName(usernames,targetusername)).get(2) + "  " + usernames.get(indexOfName(usernames,targetusername)).get(1));
                                                     Socket temp=new Socket(usernames.get(indexOfName(usernames,targetusername)).get(2),Integer.parseInt(usernames.get(indexOfName(usernames,targetusername)).get(1)));
                                                     Scanner tempin=new Scanner(temp.getInputStream());
                                                     PrintWriter tempout=new PrintWriter(temp.getOutputStream());
@@ -102,7 +102,7 @@ public class Client implements Runnable{
                                                     tempout.println(username+" request to chat with you [y/n]");
                                                     tempout.flush();
                                                     String response=tempin.nextLine();
-                                                    System.out.println(response);
+                                                    //System.out.println(response);
                                                     if (response.compareTo("y")==0){
                                                         out.println("User has accepted your chat...begin chatting");
                                                         out.flush();
