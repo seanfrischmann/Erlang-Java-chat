@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package HW5server;
+package hw5server;
 
 /**
  *

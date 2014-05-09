@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package HW5server;
+package hw5server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-public class Hw5 {
+public class Hw5server {
         public static Boolean searchlist(ArrayList<ArrayList<String> > input, String search, int j ){
             Boolean result=true;
             for(int i=0; i<input.size(); i++){
