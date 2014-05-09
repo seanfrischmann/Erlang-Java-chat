@@ -46,7 +46,8 @@ loop(List) ->
 						list_to_pid(Friend) ! {accept,From,Name},
 						loop(List);
 					false ->
-						From ! {chat,rejected},
+						io:format("User not available~n"),
+						From ! {chat,unavailable},
 						loop(List)
 				end;
 			{From, {connect, Name}} ->% This is used to check for username %

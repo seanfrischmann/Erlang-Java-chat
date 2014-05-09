@@ -33,10 +33,19 @@ loop(Server,UserName,In_Chat,Friend_Name,Is_Registered) ->
 			From ! {self(),my_id,Server,Is_Registered},
 			loop(Server,UserName,In_Chat,Friend_Name,Is_Registered);
 		{From,id_please} ->
-			From ! {self(),my_id,Server,Name},
+			From ! {self(),my_id,Server,UserName},
 			loop(Server,UserName,In_Chat,Friend_Name,Is_Registered);
 		{chat,was_disconnected} ->
 			io:format("The chat was disconnected by other party~n"),
+			loop(Server,UserName,false,0,Is_Registered);
+		{chat,unavailable} ->
+			io:format("User not available~n"),
+			loop(Server,UserName,false,0,Is_Registered);
+		{chat,rejected} ->
+			io:format("User rejected request~n"),
+			loop(Server,UserName,false,0,Is_Registered);
+		{chat,already} ->
+			io:format("User is in a chat~n"),
 			loop(Server,UserName,false,0,Is_Registered);
 		{chat,disconnected} ->
 			io:format("You have disconnected the chat~n"),
@@ -112,7 +121,8 @@ goOffline(Process_Name) ->
 					io:format("You are not connected");
 				true ->
 					{frischkro,Server} ! {From, {disconnect, Name}},
-					Process_Name ! {connect,goOffline};
+					Process_Name ! {connect,goOffline}
+			end;
 		_ ->
 			io:format("could not communicate with process, terminating program"),
 			exit(normal)
