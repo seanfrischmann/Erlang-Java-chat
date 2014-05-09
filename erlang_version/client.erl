@@ -6,95 +6,146 @@
 %%%-----------------------------------------------------------------------
 
 -module(client).
--export([start/1, loop/5]).
+-export([start/2, loop/5, goOnline/2, goOffline/1, requestChat/2, exitChat/1, sendMessage/2]).
 
-start(Server) ->
-		loop(Server,0,false,false,0).
 
-loop(Server,Name,Registered,Chat_Connected,Friend) ->
-		if
-			Chat_Connected ->
-				Chat_cmd = string:strip(io:get_line("Enter a chat command: "),both,$\n),
-				case Chat_cmd of
-					"send message" ->
-						Chat_msg = string:strip(io:get_line("Enter a message: "),both,$\n),
-						Friend ! {message,Chat_msg},
-						loop(Server,Name,Registered,true,Friend);
-					"quit chat" ->
-						Friend ! quit_chat,
-						io:format("Exiting chat...~n"),
-						loop(Server,Name,Registered,false,0);
-					"check messages" ->
-						false;
-					_ ->
-						io:format("unknown chat command~n"),
-						loop(Server,Name,Registered,true,Friend)
-				end,
-				receive
-					quit_chat ->
-						io:format("Chat has been disconnected...~n"),
-						loop(Server,Name,Registered,false,0);
-					{message,Msg} ->
-						io:format("~p~n",[Msg]),
-						loop(Server,Name,Registered,Chat_Connected,Friend);
-					_ ->
-						io:format("You have no messages~n"),
-						loop(Server,Name,Registered,Chat_Connected,Friend)
-				end;
-			true ->
-				false
-		end,
-		case Registered of
-			false ->
-				User_Name = string:strip(io:get_line("Enter a username: "),both,$\n),
-				{frischkro,Server} ! {self(), {connect, User_Name}},
-				receive
-					{connect,true} ->
-						io:format("You are now connected~n"),
-						loop(Server, User_Name, true,false,0);
-					{connect,false} ->
-						io:format("Unfortunately, that name is taken~n"),
-						loop(Server, 0, false,false,0)
-				end;
-			true ->
-				Command = string:strip(io:get_line("Enter a command: "),both,$\n),
-				case Command of
-					"quit" ->
-						{frischkro,Server} ! {self(), {disconnect, Name}},
-						exit(normal);
-					"request chat" ->
-						Friend_Request = string:strip(io:get_line("With who: "),both,$\n),
-						{frischkro,Server} ! {self(), {request, Name, Friend_Request}};
-					"check requests" ->
-						false;
-					_ ->
-						io:format("Did not understand command, please try again~n"),
-						loop(Server,Name,Registered,Chat_Connected,Friend)
-				end,
-				receive
-					{accept,Friend_temp,FriendName} ->
-						io:format("~p would like to chat ",[FriendName]),
-						Friend_accept = string:strip(io:get_line("[yes/no]"),both,$\n),
-						case Friend_accept of
-							"yes" ->
-								{frischkro,Server} ! {self(), {accepted, true, Friend_temp}},
-								loop(Server,Name,Registered,true,Friend_temp);
-							"no" ->
-								{frischkro,Server} ! {accepted, false, Friend_temp},
-								loop(Server,Name,Registered,false,Friend);
-							_ ->
-								io:format("unknown command, chat denied~n"),
-								{frischkro,Server} ! {accepted, false, Friend_temp},
-								loop(Server,Name,Registered,false,Friend)
-						end;
-					{chat,accepted,Friend_temp} ->
-						io:format("You are connected to a chat~n"),
-						loop(Server,Name,Registered,true,Friend_temp);
-					{chat,rejected} ->
-						io:format("Sorry that user is not online or unavailable~n"),
-						loop(Server,Name,Registered,false,Friend)
-				end;
-			_ ->
-				io:format("Unexpected error, program exiting"),
-				exit(normal)
-		end.
+start(Server,Process_Name) ->
+	register(Process_Name, spawn(client,loop,[Server,0,false,0,0,false])).
+
+loop(Server,UserName,In_Chat,Friend_Id,Friend_Name,Is_Registered) ->
+	io:format("...................................................~n"),
+	receive
+		{receive_message,Message} ->
+			io:format("Receiving chat message From...~p~n",[Friend_Id]),
+			io:format("~p~n",[Message]),
+			loop(Server,UserName,In_Chat,Friend_Id,Friend_Name,Is_Registered);
+		{send_message,Message} ->
+			if
+				In_Chat ->
+					Friend_Id ! {receive_message,Message},
+					io:format("Message sent~n"),
+					loop(Server,UserName,In_Chat,Friend_Id,Friend_Name,Is_Registered);
+				true ->
+					io:format("You are not currently in a chat~n"),
+					loop(Server,UserName,In_Chat,Friend_Id,Friend_Name,Is_Registered)
+			end;
+		{From,id_please,online} ->
+			From ! {self(),my_id,Server,Is_Registered},
+			loop(Server,UserName,In_Chat,Friend_Id,Friend_Name,Is_Registered);
+		{From,id_please} ->
+			From ! {self(),my_id,Server,UserName},
+			loop(Server,UserName,In_Chat,Friend_Id,Friend_Name,Is_Registered);
+		{chat,request} ->
+			loop(Server,UserName,true,Friend_Id,Friend_Name,Is_Registered);
+		{chat,was_disconnected} ->
+			io:format("The chat was disconnected by ~p~n",[Friend_Name]),
+			loop(Server,UserName,false,0,0,Is_Registered);
+		{chat,unavailable} ->
+			io:format("User not available~n"),
+			loop(Server,UserName,false,0,0,Is_Registered);
+		{chat,rejected} ->
+			io:format("User rejected request~n"),
+			loop(Server,UserName,false,0,0,Is_Registered);
+		{chat,already} ->
+			io:format("User is in a chat~n"),
+			loop(Server,UserName,false,0,Is_Registered);
+		{chat,disconnected} ->
+			io:format("You have disconnected the chat~n"),
+			Friend_Id ! {chat,was_disconnected},
+			loop(Server,UserName,false,0,Is_Registered);
+		{chat,accepted,From,Name} ->
+			io:format("You are now connected with ~p~n",[Name]),
+			loop(Server,UserName,true,From,Name,Is_Registered);
+		{accept,From,Name} ->
+			if
+				In_Chat ->
+					Friend_accept = "already in chat";
+				true ->
+					io:format("~p would like to chat ",[Name]),
+					Friend_accept = string:strip(io:get_line("[yes/no]: "),both,$\n)
+			end,
+			case Friend_accept of
+				"yes" ->
+					{frischkro,Server} ! {self(), {accepted, true, From, UserName}},
+					loop(Server,UserName,true,From,Name,Is_Registered);
+				"no" ->
+					{frischkro,Server} ! {accepted, false, From},
+					loop(Server,UserName,false,Friend_Id,Friend_Name,Is_Registered);
+				"already in chat" ->
+					{frischkro,Server} ! {accepted, already, From},
+					loop(Server,UserName,In_Chat,Friend_Id,Friend_Name,Is_Registered);
+				_ ->
+					io:format("unknown command, chat denied~n"),
+					self() ! {accept, From, Name},
+					loop(Server,UserName,In_Chat,Friend_Id,Friend_Name,Is_Registered)
+			end;
+		{connect,true,Name} ->
+			io:format("You are now connected~n"),
+			loop(Server,Name,In_Chat,Friend_Id,Friend_Name,true);
+		{connect,goOffline} ->
+			io:format("You are have disconnected from the server~n"),
+			if
+				In_Chat ->
+					self() ! {chat,disconnect},
+					loop(Server,0,In_Chat,Friend_Id,Friend_Name,false);
+				true ->
+					loop(Server,0,false,0,0,false)
+			end;
+		{connect,false} ->
+			io:format("Unfortunately, that name is taken~n"),
+			loop(Server,UserName,In_Chat,Friend_Id,Friend_Name,Is_Registered);
+		{connect,already,UserName} ->
+			io:format("You are already connected as ~p~n", [UserName]),
+			loop(Server,UserName,In_Chat,Friend_Id,Friend_Name,Is_Registered)
+	end.
+
+goOnline(Name,Process_Name) ->
+	Process_Name ! {self(),id_please,online},
+	receive
+		{From,my_id,Server,Status} ->
+			if
+				Status ->
+					io:format("already registered~n");
+				true ->
+					{frischkro,Server} ! {From, {connect, Name}}
+			end;
+		_ ->
+			io:format("could not communicate with process, terminating program"),
+			exit(normal)
+	end.
+
+goOffline(Process_Name) ->
+	Process_Name ! {self(),id_please},
+	receive
+		{From,my_id,Server,Name} ->
+			if
+				Name == 0 ->
+					io:format("You are not connected");
+				true ->
+					{frischkro,Server} ! {From, {disconnect, Name}},
+					Process_Name ! {connect,goOffline}
+			end;
+		_ ->
+			io:format("could not communicate with process, terminating program"),
+			exit(normal)
+	end.
+
+requestChat(Friend,Process_Name) ->
+	Process_Name ! {self(),id_please},
+	receive
+		{From,my_id,Server,Name} ->
+			io:format("Requesting Chat with ~p~n",[Friend]),
+			Process_Name ! {chat,request},
+			{frischkro,Server} ! {From, {request, Name, Friend}};
+		_ ->
+			io:format("could not communicate with process, terminating program"),
+			exit(normal)
+	end.
+
+exitChat(Process_Name) ->
+	io:format("Attempting to exit chat~n"),
+	Process_Name ! {chat,disconnected}.
+
+sendMessage(Message,Process_Name) ->
+	io:format("Attempting to send message~n"),
+	Process_Name ! {send_message,Message}.
