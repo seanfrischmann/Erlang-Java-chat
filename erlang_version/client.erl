@@ -6,7 +6,7 @@
 %%%-----------------------------------------------------------------------
 
 -module(client).
--export([start/2, loop/1, goOnline/3]).
+-export([start/2, loop/4, goOnline/3, goOffline/2, requestChat/3, exitChat/1, sendMessage/2]).
 
 
 start(Server,Process_Name) ->
@@ -15,6 +15,20 @@ start(Server,Process_Name) ->
 loop(Server,In_Chat,Friend_Name,Is_Registered) ->
 	io:format("waiting for message...~n"),
 	receive
+		{receive_message,Message} ->
+			io:format("Receiving chat message......~n"),
+			io:format("~p~n",[Message]),
+			loop(Server,In_Chat,Friend_Name,Is_Registered);
+		{send_message,Message}
+			if
+				In_Chat ->
+					Friend_Name ! {receive_message,Message},
+					io:format("Message sent~n"),
+					loop(Server,In_Chat,Friend_Name,Is_Registered);
+				true ->
+					io:format("You are not currently in a chat~n"),
+					loop(Server,In_Chat,Friend_Name,Is_Registered)
+			end;
 		{From,id_please,online} ->
 			From ! {self(),my_id,Server,Is_Registered},
 			loop(Server,In_Chat,Friend_Name,Is_Registered);
@@ -99,3 +113,11 @@ requestChat(Name,Friend,Process_Name) ->
 			io:format("could not communicate with process, terminating program"),
 			exit(normal)
 	end.
+
+exitChat(Process_Name) ->
+	io:format("Attempting to exit chat~n"),
+	Process_Name ! {chat,disconnected}.
+
+sendMessage(Message,Process_Name) ->
+	io:format("Attempting to send message~n"),
+	Process_Name ! {send_message,Message}.
