@@ -6,7 +6,7 @@
 %%%-----------------------------------------------------------------------
 
 -module(client).
--export([start/2, loop/5, goOnline/2, goOffline/1, requestChat/2, exitChat/1, sendMessage/2]).
+-export([start/2, loop/6, goOnline/2, goOffline/1, requestChat/2, exitChat/1, sendMessage/2]).
 
 
 start(Server,Process_Name) ->
@@ -16,14 +16,14 @@ loop(Server,UserName,In_Chat,Friend_Id,Friend_Name,Is_Registered) ->
 	io:format("...................................................~n"),
 	receive
 		{receive_message,Message} ->
-			io:format("Receiving chat message From...~p~n",[Friend_Id]),
+			io:format("Receiving chat message From...~p~n",[Friend_Name]),
 			io:format("~p~n",[Message]),
 			loop(Server,UserName,In_Chat,Friend_Id,Friend_Name,Is_Registered);
 		{send_message,Message} ->
 			if
 				In_Chat ->
 					Friend_Id ! {receive_message,Message},
-					io:format("Message sent~n"),
+					io:format("Message sent to ~p~n",[Friend_Name]),
 					loop(Server,UserName,In_Chat,Friend_Id,Friend_Name,Is_Registered);
 				true ->
 					io:format("You are not currently in a chat~n"),
@@ -34,6 +34,9 @@ loop(Server,UserName,In_Chat,Friend_Id,Friend_Name,Is_Registered) ->
 			loop(Server,UserName,In_Chat,Friend_Id,Friend_Name,Is_Registered);
 		{From,id_please} ->
 			From ! {self(),my_id,Server,UserName},
+			loop(Server,UserName,In_Chat,Friend_Id,Friend_Name,Is_Registered);
+		{From,id_please,request} ->
+			From ! {self(),my_id,Server,UserName,In_Chat},
 			loop(Server,UserName,In_Chat,Friend_Id,Friend_Name,Is_Registered);
 		{chat,request} ->
 			loop(Server,UserName,true,Friend_Id,Friend_Name,Is_Registered);
@@ -48,11 +51,11 @@ loop(Server,UserName,In_Chat,Friend_Id,Friend_Name,Is_Registered) ->
 			loop(Server,UserName,false,0,0,Is_Registered);
 		{chat,already} ->
 			io:format("User is in a chat~n"),
-			loop(Server,UserName,false,0,Is_Registered);
+			loop(Server,UserName,false,0,0,Is_Registered);
 		{chat,disconnected} ->
 			io:format("You have disconnected the chat~n"),
 			Friend_Id ! {chat,was_disconnected},
-			loop(Server,UserName,false,0,Is_Registered);
+			loop(Server,UserName,false,0,0,Is_Registered);
 		{chat,accepted,From,Name} ->
 			io:format("You are now connected with ~p~n",[Name]),
 			loop(Server,UserName,true,From,Name,Is_Registered);
@@ -66,9 +69,11 @@ loop(Server,UserName,In_Chat,Friend_Id,Friend_Name,Is_Registered) ->
 			end,
 			case Friend_accept of
 				"yes" ->
+					io:format("You are now connected with ~p~n",[Name]),
 					{frischkro,Server} ! {self(), {accepted, true, From, UserName}},
 					loop(Server,UserName,true,From,Name,Is_Registered);
 				"no" ->
+					io:format("You have rejected the request~n"),
 					{frischkro,Server} ! {accepted, false, From},
 					loop(Server,UserName,false,Friend_Id,Friend_Name,Is_Registered);
 				"already in chat" ->
@@ -131,12 +136,17 @@ goOffline(Process_Name) ->
 	end.
 
 requestChat(Friend,Process_Name) ->
-	Process_Name ! {self(),id_please},
+	Process_Name ! {self(),id_please,request},
 	receive
-		{From,my_id,Server,Name} ->
-			io:format("Requesting Chat with ~p~n",[Friend]),
-			Process_Name ! {chat,request},
-			{frischkro,Server} ! {From, {request, Name, Friend}};
+		{From,my_id,Server,Name,In_Chat} ->
+			if
+				In_Chat ->
+					io:format("Either sending request or already in chat~n");
+				true ->
+					io:format("Requesting Chat with ~p~n",[Friend]),
+					Process_Name ! {chat,request},
+					{frischkro,Server} ! {From, {request, Name, Friend}}
+			end;
 		_ ->
 			io:format("could not communicate with process, terminating program"),
 			exit(normal)
