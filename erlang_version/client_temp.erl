@@ -9,8 +9,8 @@
 -export([start/1, loop/1, goOnline/2]).
 
 
-start(Server) ->
-	spawn(client_temp,loop,[Server]).
+start(Server,Process_Name) ->
+	register(Process_Name, spawn(client_temp,loop,[Server])).
 
 loop(Server) ->
 	io:format("waiting for message...~n"),
@@ -26,5 +26,5 @@ loop(Server) ->
 			loop(Server)
 	end.
 
-goOnline(Server,Name) ->
-	{frischkro,Server} ! {self(), {connect, Name}}.
+goOnline(Server,Name,Process_Name) ->
+	{frischkro,Server} ! {Process_Name, {connect, Name}}.
