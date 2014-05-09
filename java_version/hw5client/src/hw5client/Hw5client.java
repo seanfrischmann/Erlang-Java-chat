@@ -52,9 +52,15 @@ public class Hw5client {
                             //System.out.println(result);
                             if(result.compareTo("notexist")==0){
                                 System.out.println("You connected to " + HOST + " with username " +username);
+                                out.println("send");
+                                out.flush();
+                                String portnum=in.nextLine();
+                                out.println("sending");
+                                out.flush();
+                                String hostname=in.nextLine();
                                 //IF CONNECTED THEN PRINT IT OUT
                                 loggedin=true;
-                                Client client = new Client(s);//START NEW CLIENT OBJECT
+                                Client client = new Client(s,portnum,hostname);//START NEW CLIENT OBJECT
                                 
                                 Thread t = new Thread(client);//INITIATE NEW THREAD
                                 
