@@ -56,10 +56,11 @@ loop(List) ->
 							false ->
 								case lists:keymember(Name,1,List) of
 									true ->
-										From ! {self(), {connect,false}},
+										From ! {connect,false},
+										io:format("Server: Username already in use~n"),
 										loop(List);
 									false ->
-										From ! {connect,true},
+										From ! {connect,true,Name},
 										loop(clientManager({Name,pid_to_list(From)},List,connect))
 								end;
 							true ->
@@ -70,7 +71,7 @@ loop(List) ->
 						end;
 					false ->
 						List_temp = clientManager({Name,pid_to_list(From)},List,connect),
-						From ! {connect,true},
+						From ! {connect,true,Name},
 						loop(List_temp)
 				end;
 			{From, {disconnect, Name}} ->
