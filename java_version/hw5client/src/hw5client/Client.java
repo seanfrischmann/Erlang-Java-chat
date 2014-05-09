@@ -24,8 +24,10 @@ public class Client implements Runnable {
 	private Socket socket;//MAKE SOCKET INSTANCE VARIABLE
 	private String PORT;
         private String hostname;
-	public Client(Socket s,String p,String n)
+        private String localHost;
+	public Client(Socket s,String p,String n,String q)
 	{
+            localHost=q;
             hostname=n;
             PORT=p;
             socket = s;//INSTANTIATE THE INSTANCE VARIABLE
@@ -55,7 +57,7 @@ public class Client implements Runnable {
 			while(true)//WHILE THE PROGRAM IS RUNNING
 			{	
                                             try{
-                                                        server.setSoTimeout(100); 
+                                                        server.setSoTimeout(300); 
                                                         clientSocket=server.accept();
                                                         BufferedReader socketin=new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                                                         PrintWriter socketout=new PrintWriter(clientSocket.getOutputStream());
@@ -75,6 +77,8 @@ public class Client implements Runnable {
                                                                     message=chatin.readLine();
                                                                     if(message.compareTo("quit()")==0){
                                                                         System.out.println("chat has been ended");
+                                                                        System.out.flush();
+                                                                        clientSocket.close();
                                                                         break;
                                                                     }
                                                                     else{
@@ -88,6 +92,8 @@ public class Client implements Runnable {
                                                                         chatout.println("quit()");
                                                                         chatout.flush();
                                                                         System.out.println("chat has been ended");
+                                                                        System.out.flush();
+                                                                        clientSocket.close();
                                                                         break;
                                                                     }
                                                                     else{
@@ -154,8 +160,10 @@ public class Client implements Runnable {
                                                                     message=chatin.readLine();
                                                                     if(message.compareTo("quit()")==0){
                                                                         System.out.println(targetusername+" quit, chat ended");
+                                                                        System.out.flush();
                                                                         out.println("quit()");
                                                                         out.flush();
+                                                                        temp.close();
                                                                         break;
                                                                     }
                                                                     else{
@@ -169,8 +177,10 @@ public class Client implements Runnable {
                                                                         chatout.println("quit()");
                                                                         chatout.flush();
                                                                         System.out.println("chat with " + targetusername+" ended");
+                                                                        System.out.flush();
                                                                         out.println("quit()");
                                                                         out.flush();
+                                                                        temp.close();
                                                                         break;
                                                                     }
                                                                     else{

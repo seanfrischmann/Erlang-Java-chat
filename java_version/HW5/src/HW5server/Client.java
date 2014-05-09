@@ -85,16 +85,18 @@ public class Client implements Runnable{
                                         else if(input.endsWith("2")){
                                             StringTokenizer tokens = new StringTokenizer(input.substring(15, input.length()-2),",");
                                             if(tokens.countTokens()>2){
+                                                //String localHost=tokens.nextToken();
                                                 String HOST=tokens.nextToken();
                                                 String username=tokens.nextToken();
                                                 String targetusername=tokens.nextToken();
+                                                
                                                 //System.out.println("1"+isUserOnline(usernames,targetusername));
                                                 //System.out.println(usersInChat);
                                                 //System.out.println("3"+isUserChatting(usersInChat,username));
                                                 //System.out.println("4"+isUserChatting(usersInChat,targetusername));
                                                 if(isUserOnline(usernames,targetusername)&&usersInChat.contains(targetusername)==false){
                                                     //System.out.println(usernames.get(indexOfName(usernames,targetusername)).get(2) + "  " + usernames.get(indexOfName(usernames,targetusername)).get(1));
-                                                    Socket temp=new Socket(usernames.get(indexOfName(usernames,targetusername)).get(2),Integer.parseInt(usernames.get(indexOfName(usernames,targetusername)).get(1)));
+                                                    Socket temp=new Socket(usernames.get(indexOfName(usernames,targetusername)).get(3),Integer.parseInt(usernames.get(indexOfName(usernames,targetusername)).get(1)));
                                                     Scanner tempin=new Scanner(temp.getInputStream());
                                                     PrintWriter tempout=new PrintWriter(temp.getOutputStream());
                                                     out.println("userisclear");
@@ -108,7 +110,7 @@ public class Client implements Runnable{
                                                         out.flush();
                                                         out.println("yes");
                                                         out.flush();
-                                                        out.println(usernames.get(indexOfName(usernames,targetusername)).get(2));
+                                                        out.println(usernames.get(indexOfName(usernames,targetusername)).get(3));
                                                         out.flush();
                                                         out.println(Integer.parseInt(usernames.get(indexOfName(usernames,targetusername)).get(1)));
                                                         out.flush();
@@ -161,6 +163,5 @@ public class Client implements Runnable{
 	}
 
 }
-
 
 

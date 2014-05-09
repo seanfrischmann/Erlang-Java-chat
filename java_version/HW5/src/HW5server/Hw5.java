@@ -48,8 +48,12 @@ public class Hw5 {
 				Scanner in = new Scanner(s.getInputStream());//GET THE CLIENTS INPUT STREAM (USED TO READ DATA SENT FROM THE SERVER)
                                 PrintWriter out = new PrintWriter(s.getOutputStream());
                                 String input="";
+                                String input2="";
                                 if(in.hasNext()){
                                     input=in.nextLine();
+                                }
+                                if(in.hasNext()){
+                                    input2=in.nextLine();
                                 }
                                 if(searchlist(usernames,input,0)){
                                     System.out.println("Client connected from " + s.getPort()+" on server "+s.getLocalAddress().getHostName()+ " using name "+input);	//	TELL THEM THAT THE CLIENT CONNECTED
@@ -58,6 +62,7 @@ public class Hw5 {
                                     temp.add(input);
                                     temp.add(Integer.toString(PORT));
                                     temp.add(s.getLocalAddress().getHostName());
+                                    temp.add(input2);
                                     usernames.add(temp);
                                     out.println("notexist");
                                     out.flush();
