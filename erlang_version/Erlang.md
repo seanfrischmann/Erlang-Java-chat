@@ -1,6 +1,7 @@
-Erlang Version
+Erlang Version Commands
 ==============
 -----------------------------Commands-----------------------------------
+
 *Using erlang interpreter
 
     --> start erlang interpreter by erl -sname server -setcookie chocolateChip
